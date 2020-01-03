@@ -126,8 +126,6 @@ app.service('OpenAirService', function() {
             var taskName = $(this).parents('tr').find('.timesheetControlPopup option:selected').text().split(': ')[1];
             var notesId = $(this).find('a').attr('data-additional-prefix');
             var notes = parent.findNotes(notesId);
-            var descriptionId = $(this).find('a').attr('data-additional-prefix')
-            var description = parent.findDescription(descriptionId);
             var id = $(this).find('input').attr('id');
             if (!timeEntries[date]) {
                 timeEntries[date] = [];
@@ -139,7 +137,6 @@ app.service('OpenAirService', function() {
                 task: task,
                 taskName: taskName,
                 notes: notes,
-                description: description,
                 id: id
             });
         });
@@ -164,8 +161,6 @@ app.service('OpenAirService', function() {
         // That takes care of the time field, now we have to add the notes.
         var notesId = cellId.replace("ts", "");
         parent.addNotes(timeEntry.notes, notesId);
-        parent.addNotes(timeEntry.description, descriptionId);
-
 
         // Finally, let's .trigger('change') on the hours and tasks fields so that
         // OpenAir realizes they have been updated.
@@ -329,55 +324,6 @@ app.service('OpenAirService', function() {
 
         this.injectJs(jsString);
     };
-
-    /**
-     * Given a descriptionId which is easy to find, find the actual note which
-     * is pants-on-head difficult to find, involving parsing JSON out of a
-     * <script> tag and traversing it until you find the right ID.
-     *
-     * @param {string} descriptionId
-     * @returns {string} description
-     */
-    this.finddescription = function(descriptionId) {
-        var timeData = JSON.parse($('#oa_model_timesheet').html());
-        var description = "test";
-        angular.forEach(timeData.rows, function(row) {
-            angular.forEach(row.fields, function(field) {
-                if (field.id === descriptionId) {
-                    description = field.details.data.description;
-                }
-            });
-        });
-        return description;
-    };
-
-    /**
-     * Adds description for a specific time entry into the OpenAir global OA object.
-     *
-     * @param {string} description
-     * @param {string} descriptionId
-     */
-    this.adddescription = function(description, descriptionId) {
-        var idAttr = '#ts_description' + descriptionId;
-        description = description.replace(/'/g, "&#39;"); // Escape single quotes if they exist.
-
-        // To populate description, we need to programmatically go through the routine
-        // of clicking the "description" link, populating the textarea, and submitting
-        // the popup, since OA of course couldn't make it as easy as setting
-        // the value of an input. Chrome extensions can't trigger things, so
-        // we have to insert a new <script> tag into the page with the code
-        // we want to run (see note in fetchTasks() for more info).
-
-        // Click the "description" link to open the popup
-        var jsString = "jQuery('" + idAttr + "').trigger('click');";
-        // Enter the value into the textarea in the popup
-        jsString += "jQuery('#tm_desc').val('" + description + "');";
-        // Click the submit button to close the popup and save the description
-        jsString += "jQuery('.dialogOkButton').trigger('click');";
-
-        this.injectJs(jsString);
-    };
-
 
     /**
      * Delete a time entry from the OpenAir timesheet grid, by ID.

@@ -35,7 +35,6 @@ app.controller('TimeEntryController', ['$scope', 'OpenAirService', function($sco
                 task: $scope.task,
                 taskName: OpenAirService.fetchTasks($scope.project)[$scope.task],
                 notes: $scope.notes,
-                description: $scope.description,
                 day: day
             };
 
@@ -55,14 +54,6 @@ app.controller('TimeEntryController', ['$scope', 'OpenAirService', function($sco
         // Finally, trigger the notes field again for rapid-fire entry.
         angular.element('.p2-notes').trigger('focus');
     };
-        // Reset the description field since we can be sure that won't be repeated
-        // on the next entry. The other variables can stay in case they will be
-        // repeated, to save repetitive entry.
-        $scope.description = '';
-
-        // Finally, trigger the description field again for rapid-fire entry.
-        angular.element('.p2-description').trigger('focus');
-    };
 
     /**
      * Deletes a specific time entry from a specific day and populates the form
@@ -73,7 +64,6 @@ app.controller('TimeEntryController', ['$scope', 'OpenAirService', function($sco
      */
     $scope.editTime = function(entry, day) {
         $scope.notes = entry.notes;
-        $scope.description = entry.description;
         $scope.project = entry.project;
         $scope.tasks = OpenAirService.fetchTasks(entry.project);
         $scope.task = entry.task;
@@ -97,7 +87,6 @@ app.controller('TimeEntryController', ['$scope', 'OpenAirService', function($sco
             if (element.time === entry.time &&
                 element.project === entry.project &&
                 element.task === entry.task &&
-                element.description === entry.description &&
                 element.notes === entry.notes) {
                 return false;
             }
@@ -178,7 +167,7 @@ app.controller('TimeEntryController', ['$scope', 'OpenAirService', function($sco
         if (key === 13) {
 
             // Enter key was pressed! Can we submit the form?
-            if ($scope.notes && $scope.description && $scope.project && $scope.task && $scope.time) {
+            if ($scope.notes && $scope.project && $scope.task && $scope.time) {
 
                 // Woohoo! We can add some time!
                 $scope.addTime(e);

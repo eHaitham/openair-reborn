@@ -1,6 +1,6 @@
 {
     "name": "__MSG_appName__",
-    "version": "0.0.31",
+    "version": "0.0.3",
     "manifest_version": 2,
     "description": "__MSG_appDescription__",
     "icons": {
@@ -8,10 +8,6 @@
         "128": "images/icon-128.png"
     },
     "default_locale": "en",
-    "permissions": [
-        "storage",
-        "tabs"
-    ],
     "background": {
         "scripts": [
             "scripts/chromereload.js",
@@ -22,7 +18,9 @@
         "default_icon": {
             "19": "images/icon-19.png",
             "38": "images/icon-38.png"
-        }
+        },
+        "default_title": "OpenAir Reborn",
+        "default_popup": "popup.html"
     },
     "options_page": "options.html",
     "content_scripts": [
@@ -43,7 +41,6 @@
                 "scripts/markup.js",
                 "scripts/timeentry.js",
                 "scripts/openair.js",
-                "scripts/timer.js",
                 "bower_components/angular-chosen-localytics/chosen.js"
             ],
             "run_at": "document_end",
