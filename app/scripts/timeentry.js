@@ -51,18 +51,16 @@ app.controller('TimeEntryController', ['$scope', 'OpenAirService', function($sco
         // on the next entry. The other variables can stay in case they will be
         // repeated, to save repetitive entry.
         $scope.notes = '';
+        $scope.description = '';
 
         // Finally, trigger the notes field again for rapid-fire entry.
         angular.element('.p2-notes').trigger('focus');
+        angular.element('.p2-description').trigger('focus');
     };
         // Reset the description field since we can be sure that won't be repeated
         // on the next entry. The other variables can stay in case they will be
         // repeated, to save repetitive entry.
-        $scope.description = '';
-
         // Finally, trigger the description field again for rapid-fire entry.
-        angular.element('.p2-description').trigger('focus');
-    };
 
     /**
      * Deletes a specific time entry from a specific day and populates the form

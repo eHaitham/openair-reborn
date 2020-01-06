@@ -29,18 +29,14 @@
                 "https://www.openair.com/timesheet.pl*"
             ],
             "css": [
-                "styles/main.css",
-                "chosen/chosen.css",
-                "angular-chosen-localytics/chosen-spinner.css"
+                "styles/main.css"
             ],
             "js": [
-                "jquery/dist/jquery.js",
-                "angular/angular.js",
-                "chosen/chosen.jquery.js",
+                "mod/jquery/dist/jquery.js",
+                "mod/angular/angular.js",
                 "scripts/markup.js",
                 "scripts/timeentry.js",
-                "scripts/openair.js",
-                "angular-chosen-localytics/chosen.js"
+                "scripts/openair.js"
             ],
             "run_at": "document_end",
             "all_frames": false
@@ -49,11 +45,9 @@
     "web_accessible_resources": [
         "views/form.html",
         "views/table.html",
-        "angular/angular.js",
-        "angular/angular.js.map",
-        "jquery/dist/jquery.js",
-        "jquery/dist/jquery.map",
-        "chosen/chosen.jquery.js",
-        "angular-chosen-localytics/chosen.js"
+        "mod/angular/angular.js",
+        "mod/angular/angular.map",
+        "mod/jquery/dist/jquery.js",
+        "mod/jquery/dist/jquery.min.map"
     ]
 }
