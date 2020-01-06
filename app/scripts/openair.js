@@ -182,7 +182,7 @@ app.service('OpenAirService', function() {
         var notesId = cellId.replace("ts", "");
         parent.addNotes(timeEntry.notes, notesId);
         var description_1Id = cellId.replace("ts", "");
-        parent.findDescription_1(timeEntry.findDescription_1, description_1Id);
+        parent.addDescription_1(timeEntry.description_1, description_1Id);
         // Finally, let's .trigger('change') on the hours and tasks fields so that
         // OpenAir realizes they have been updated.
         var idParts = cellId.split('_');
@@ -365,7 +365,7 @@ app.service('OpenAirService', function() {
      * @param {string} description_1Id
      * @returns {string} description_1
      */
-    this. = function(description_1Id) {
+    this.findDescription_1 = function(description_1Id) {
         var timeData = JSON.parse($('#oa_model_timesheet').html());
         var description_1 = "test";
         angular.forEach(timeData.rows, function(row) {
@@ -384,7 +384,7 @@ app.service('OpenAirService', function() {
      * @param {string} description_1
      * @param {string} description_1Id
      */
-    this.adddescription_1 = function(description_1, description_1Id) {
+    this.addDescription_1 = function(description_1, description_1Id) {
         var idAttr = '#ts_desc' + description_1Id;
         description_1 = description_1.replace(/'/g, "&#39;"); // Escape single quotes if they exist.
 
