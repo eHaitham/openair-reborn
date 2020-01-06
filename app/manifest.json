@@ -26,22 +26,21 @@
     "content_scripts": [
         {
             "matches": [
-                "https://www.openair.com/timesheet.pl*",
-                "https://preview.openair.com/timesheet.pl*"
+                "https://www.openair.com/timesheet.pl*"
             ],
             "css": [
                 "styles/main.css",
-                "bower_components/chosen/chosen.css",
-                "bower_components/angular-chosen-localytics/chosen-spinner.css"
+                "chosen/chosen.css",
+                "angular-chosen-localytics/chosen-spinner.css"
             ],
             "js": [
-                "bower_components/jquery/dist/jquery.js",
-                "bower_components/angular/angular.js",
-                "bower_components/chosen/chosen.jquery.js",
+                "jquery/dist/jquery.js",
+                "angular/angular.js",
+                "chosen/chosen.jquery.js",
                 "scripts/markup.js",
                 "scripts/timeentry.js",
                 "scripts/openair.js",
-                "bower_components/angular-chosen-localytics/chosen.js"
+                "angular-chosen-localytics/chosen.js"
             ],
             "run_at": "document_end",
             "all_frames": false
@@ -50,11 +49,11 @@
     "web_accessible_resources": [
         "views/form.html",
         "views/table.html",
-        "bower_components/angular/angular.js",
-        "bower_components/angular/angular.js.map",
-        "bower_components/jquery/dist/jquery.js",
-        "bower_components/jquery/dist/jquery.map",
-        "bower_components/chosen/chosen.jquery.js",
-        "bower_components/angular-chosen-localytics/chosen.js"
+        "angular/angular.js",
+        "angular/angular.js.map",
+        "jquery/dist/jquery.js",
+        "jquery/dist/jquery.map",
+        "chosen/chosen.jquery.js",
+        "angular-chosen-localytics/chosen.js"
     ]
 }
