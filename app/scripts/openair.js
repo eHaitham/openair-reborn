@@ -71,12 +71,25 @@ app.service('OpenAirService', function() {
         // to build our formatted "tasks" object and return it.
         $taskoptions.each(function () {
             if ($(this).text().length > 0 && $(this).val() !== "0") {
-                // Let's use a .split() to remove the useless number from the task's label.
-                var label = $(this).text().split(': ')[1];
+                var label = $(this).text();
                 tasks[$(this).val()] = label;
             }
         });
         return tasks;
+    };
+
+    /**
+     * Fetchs the sum of all time for the current week and returns it.
+     *
+     * @returns {float} hours
+     */
+    this.fetchWeekTime = function() {
+        var weekTime = $('.timesheetTotal').last().text();
+        if (!weekTime) {
+            // No entries for this week yet.
+            weekTime = 0;
+        }
+        return parseFloat(weekTime);
     };
 
     /**
@@ -119,27 +132,31 @@ app.service('OpenAirService', function() {
                 // This one's empty, so skip it.
                 return;
             }
+
+            // Here be dragons. There are a few funky selectors here. OpenAir definitely
+            // didn't throw us any bones.
             var date = $(this).find('a').attr('data-additional-title').substring(0, 2).toLowerCase();
             var project = $(this).parents('tr').find('.timesheetControlPopupCustomerProject').val();
-            var projectName = projects[project].split(' : ')[1];
+            var projectName = projects[project];
             var task = $(this).parents('tr').find('.timesheetControlPopup').val();
-            var taskName = $(this).parents('tr').find('.timesheetControlPopup option:selected').text().split(': ')[1];
+            var taskName = $(this).parents('tr').find('.timesheetControlPopup option:selected').text();
             var notesId = $(this).find('a').attr('data-additional-prefix');
             var notes = parent.findNotes(notesId);
-            var descriptionId = $(this).find('a').attr('data-additional-prefix')
-            var description = parent.findDescription(descriptionId);
+            var description_1Id = $(this).find('a').attr('data-additional-prefix');
+            var description_1 = parent.findDescription_1(description_1Id);
             var id = $(this).find('input').attr('id');
             if (!timeEntries[date]) {
                 timeEntries[date] = [];
             }
             timeEntries[date].push({
                 time: time,
+                timerStart: time * 60 * 60 * 1000,
                 project: project,
                 projectName: projectName,
                 task: task,
                 taskName: taskName,
                 notes: notes,
-                description: description,
+                description_1: description_1,
                 id: id
             });
         });
@@ -159,14 +176,13 @@ app.service('OpenAirService', function() {
         var cellId = this.findOpenCell(timeEntry.project, timeEntry.task, timeEntry.day);
 
         // Then we set the value of that cell.
-        $('#' + cellId).val(timeEntry.time);
+        parent.addHours(cellId, timeEntry.time);
 
         // That takes care of the time field, now we have to add the notes.
         var notesId = cellId.replace("ts", "");
         parent.addNotes(timeEntry.notes, notesId);
-        parent.addNotes(timeEntry.description, descriptionId);
-
-
+        var description_1Id = cellId.replace("ts", "");
+        parent.findDescription_1(timeEntry.findDescription_1, description_1Id);
         // Finally, let's .trigger('change') on the hours and tasks fields so that
         // OpenAir realizes they have been updated.
         var idParts = cellId.split('_');
@@ -174,9 +190,21 @@ app.service('OpenAirService', function() {
         var taskCellId = 'ts_c2_' + rowNum;
         var jsString = "jQuery('#" + cellId + "').trigger('change');";
         jsString += "jQuery('#" + taskCellId + "').trigger('change');";
-        this.injectJs(jsString);
+        parent.injectJs(jsString);
 
         return cellId;
+    };
+
+    /**
+     * Simple function to set the value of a time cell ID.
+     *
+     * @param {string} cellId
+     * @param {float} hours
+     */
+    this.addHours = function(cellId, hours) {
+        $('#' + cellId).val(hours);
+        var jsString = "jQuery('#" + cellId + "').trigger('change');";
+        parent.injectJs(jsString);
     };
 
     /**
@@ -268,7 +296,7 @@ app.service('OpenAirService', function() {
      *
      * Cells are all in the format "ts_c<column>_r<row>" so we just replace
      * the column with the one for the day and the rest stays the same as the
-     * project dropdown iD.
+     * project dropdown ID.
      *
      * @param {string} projectCellId
      * @param {int} day
@@ -300,7 +328,7 @@ app.service('OpenAirService', function() {
                 }
             });
         });
-        return notes;
+        return notes.replace(/&#39;/g, "'"); // Decode single quotes from OpenAir.
     };
 
     /**
@@ -329,55 +357,53 @@ app.service('OpenAirService', function() {
 
         this.injectJs(jsString);
     };
-
     /**
-     * Given a descriptionId which is easy to find, find the actual note which
+     * Given a description_1Id which is easy to find, find the actual note which
      * is pants-on-head difficult to find, involving parsing JSON out of a
      * <script> tag and traversing it until you find the right ID.
      *
-     * @param {string} descriptionId
-     * @returns {string} description
+     * @param {string} description_1Id
+     * @returns {string} description_1
      */
-    this.finddescription = function(descriptionId) {
+    this. = function(description_1Id) {
         var timeData = JSON.parse($('#oa_model_timesheet').html());
-        var description = "test";
+        var description_1 = "test";
         angular.forEach(timeData.rows, function(row) {
             angular.forEach(row.fields, function(field) {
-                if (field.id === descriptionId) {
-                    description = field.details.data.description;
+                if (field.id === description_1Id) {
+                    description_1 = field.details.data.description_1;
                 }
             });
         });
-        return description;
+        return description_1.replace(/&#39;/g, "'"); // Decode single quotes from OpenAir.
     };
 
     /**
-     * Adds description for a specific time entry into the OpenAir global OA object.
+     * Adds description_1 for a specific time entry into the OpenAir global OA object.
      *
-     * @param {string} description
-     * @param {string} descriptionId
+     * @param {string} description_1
+     * @param {string} description_1Id
      */
-    this.adddescription = function(description, descriptionId) {
-        var idAttr = '#ts_description' + descriptionId;
-        description = description.replace(/'/g, "&#39;"); // Escape single quotes if they exist.
+    this.adddescription_1 = function(description_1, description_1Id) {
+        var idAttr = '#ts_desc' + description_1Id;
+        description_1 = description_1.replace(/'/g, "&#39;"); // Escape single quotes if they exist.
 
-        // To populate description, we need to programmatically go through the routine
-        // of clicking the "description" link, populating the textarea, and submitting
+        // To populate description_1, we need to programmatically go through the routine
+        // of clicking the "description_1" link, populating the textarea, and submitting
         // the popup, since OA of course couldn't make it as easy as setting
         // the value of an input. Chrome extensions can't trigger things, so
         // we have to insert a new <script> tag into the page with the code
         // we want to run (see note in fetchTasks() for more info).
 
-        // Click the "description" link to open the popup
+        // Click the "description_1" link to open the popup
         var jsString = "jQuery('" + idAttr + "').trigger('click');";
         // Enter the value into the textarea in the popup
-        jsString += "jQuery('#tm_desc').val('" + description + "');";
-        // Click the submit button to close the popup and save the description
+        jsString += "jQuery('#tm_desc').val('" + description_1 + "');";
+        // Click the submit button to close the popup and save the description_1
         jsString += "jQuery('.dialogOkButton').trigger('click');";
 
         this.injectJs(jsString);
     };
-
 
     /**
      * Delete a time entry from the OpenAir timesheet grid, by ID.
@@ -395,7 +421,20 @@ app.service('OpenAirService', function() {
     };
 
     /**
+     * Adds the "Preview" button to the make and makes it work.
+     * This is regular old jQuery because the button goes outside our Angular app's container div, so we
+     * can't easily touch it with Angular magic.
+     */
+    this.addPreviewButton = function() {
+        // Add the Preview button where we want it.
+        angular.element('#timesheet_savebutton').insertBefore('#save_grid_submit');
+        angular.element('<button id="p2_preview" class="btn-oa">Preview</button>').insertAfter('#timesheet_savebutton');
+    };
+
+    /**
      * Helper function to convert two digit day code to integer.
+     *
+     * @TODO: Start using numbers instead of day codes. It'll remove a lot of dumb logic.
      *
      * @param {string} dayCode
      * @returns {int}
@@ -410,5 +449,20 @@ app.service('OpenAirService', function() {
         weekdays.sa = 5;
         weekdays.su = 6;
         return weekdays[dayCode];
+    };
+
+    /**
+     * Gets the timestamp of a date in this timesheet, given the 2 letter day code.
+     * @param {string} dayCode
+     * @returns {number}
+     */
+    this.getDateTimestamp = function(dayCode) {
+        var dayNum = parent.getDayNum(dayCode);
+        var weekStart = Date.parse($('.aht_middle').text().split(" ")[0]);
+        if (typeof weekStart !== "number" || weekStart === 0) {
+            return 0;
+        }
+        var dayTimestamp = weekStart + (dayNum * 1000 * 60 * 60 * 24);
+        return dayTimestamp;
     };
 });
