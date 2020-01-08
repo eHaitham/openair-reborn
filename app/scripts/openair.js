@@ -138,12 +138,16 @@ app.service('OpenAirService', function() {
             var date = $(this).find('a').attr('data-additional-title').substring(0, 2).toLowerCase();
             var project = $(this).parents('tr').find('.timesheetControlPopupCustomerProject').val();
             var projectName = projects[project];
+
             var task = $(this).parents('tr').find('.timesheetControlPopup').val();
             var taskName = $(this).parents('tr').find('.timesheetControlPopup option:selected').text();
+
             var notesId = $(this).find('a').attr('data-additional-prefix');
             var notes = parent.findNotes(notesId);
+
             var description_1Id = $(this).find('a').attr('data-additional-prefix');
             var description_1 = parent.findDescription_1(description_1Id);
+
             var id = $(this).find('input').attr('id');
             if (!timeEntries[date]) {
                 timeEntries[date] = [];
